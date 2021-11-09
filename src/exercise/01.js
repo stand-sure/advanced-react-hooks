@@ -7,9 +7,21 @@ const INCREMENT = "increment";
 
 function countReducer(state, action) {
   action = typeof action === "function" ? action(state) : action;
-  if (action.type === INCREMENT) {
-    return {...state, ...action, count: state.count + action.step};
+
+  let retVal = {...state};
+  switch (action.type) {
+    case INCREMENT:
+      retVal = {
+        ...state,
+        ...action,
+        count: state.count + action.step,
+      };
+      break;
+    default:
+      throw new Error(`Unexpected action type: ${action.type}`);
   }
+
+  return retVal;
 }
 
 function Counter({initialCount = 0, step = 1}) {
