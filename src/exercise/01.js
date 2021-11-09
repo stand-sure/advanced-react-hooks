@@ -5,17 +5,21 @@ import * as React from "react";
 
 const INCREMENT = "increment";
 
+function incrementCount(state, action){
+  return {
+    ...state,
+    ...action,
+    count: state.count + action.step,
+  }
+}
+
 function countReducer(state, action) {
   action = typeof action === "function" ? action(state) : action;
 
   let retVal = {...state};
   switch (action.type) {
     case INCREMENT:
-      retVal = {
-        ...state,
-        ...action,
-        count: state.count + action.step,
-      };
+      retVal = incrementCount(state, action);
       break;
     default:
       throw new Error(`Unexpected action type: ${action.type}`);
