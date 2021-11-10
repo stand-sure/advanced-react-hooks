@@ -5,23 +5,42 @@ import * as React from "react";
 
 const CountContext = React.createContext();
 
-function CountProvider({children, ...props}) {
-  const [count, setCount] = React.useState(0);
-  const value = [count, setCount];
-  return (
-    <CountContext.Provider {...props} value={value}>
-      {children}
-    </CountContext.Provider>
-  );
+function nameof(obj) {
+  return Object.keys(obj)[0];
 }
 
+function CountProvider({...props}) {
+  const [count, setCount] = React.useState(0);
+  const value = [count, setCount];
+  return <CountContext.Provider {...props} value={value} />;
+}
+
+function useCount() {
+  const context = React.useContext(CountContext);
+  if (context === undefined) {
+    throw new Error(
+      `${nameof({useCount})} must be used within a ${nameof({CountProvider})}`,
+    );
+  }
+
+  const [count, setCount] = context;
+  return [count, setCount];
+}
+
+const withCount = Component => props =>
+  (
+    <CountProvider>
+      <Component {...props} />
+    </CountProvider>
+  );
+
 function CountDisplay() {
-  const [count] = React.useContext(CountContext);
+  const [count] = useCount();
   return <div>{`The current count is ${count}`}</div>;
 }
 
 function Counter() {
-  const [, setCount] = React.useContext(CountContext);
+  const [, setCount] = useCount();
   const increment = () => setCount(c => c + 1);
   return <button onClick={increment}>Increment count</button>;
 }
@@ -29,12 +48,14 @@ function Counter() {
 function App() {
   return (
     <div>
-      <CountProvider>
+      {/* <CountProvider> */}
         <CountDisplay />
         <Counter />
-      </CountProvider>
+      {/* </CountProvider> */}
     </div>
   );
 }
 
-export default App;
+const AppWithCount = withCount(App);
+
+export default AppWithCount;
